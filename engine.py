@@ -3,10 +3,22 @@ import os
 import datetime
 import pandas as pd
 
-def fetch_data():
-    ticker = "TSLA"
+def fetch_data(ticker):
+    """
+    Fetches the historic data.
+
+    Parameters
+    ----------
+    ticker : str
+        Indicates the ticker symbol of the traded asset.
+
+    Returns
+    -------
+    data : Dataframe
+        A multicolumn dataframe containing the historical data of the asset.
+    """
     end_date = datetime.datetime.today()
-    start_date = end_date - datetime.timedelta(weeks=208)
+    start_date = end_date - datetime.timedelta(weeks=300)
 
     data = yf.download(ticker, start=start_date.strftime('%Y-%m-%d'), end=end_date.strftime('%Y-%m-%d'), interval='1d')
     return data
@@ -20,101 +32,132 @@ def save_data(df, filename):
     df.to_csv(file_path)
     print("Data is saved at " + file_path)
 
-def handle_data():
-    df = fetch_data()
-    save_data(df, "APPL_data")
-
 from strategies.ma_crossover import handle_candle
 from orders import Order
 from portfolio import Portfolio
 
-def execute_orders(ticker, last_close_price, current_price, 
-                   orders_stack: list[Order], portfolio: Portfolio):
-    executed_indexes = set()
+def execute_orders(ticker, previous_candle, current_candle, 
+                   orders_stack: list[Order], portfolio: Portfolio, executed_orders: set[int]):
+    """
+    Simulates exectution of the orders.
 
+    The execution of an order depends on which other orders have been executed.
+    If multiple orders are executed at the same time and they are cyclic dependent
+    it is not clear which one to execute. Thus, all orders are assigned a priority.
+    The orders come in a decreasing priority in the list.
+
+    Once an order is executed, its index is added to the list of executed orders.
+    This is a simple model, which assumes that the market orders are executed at the
+    start of the period and that stop/limit orders are executed at their respective price.
+
+    Parameters
+    ----------
+    ticker : str
+        The ticker symbol of the traded asset.
+    previous_candle : pandas.Series
+        The information for the previous candle.
+    current_candle : pandas.Series
+        The information for the current candle.
+    orders_stack : list of Order
+        A list with all orders which have not been yet executed.
+    portfolio : Portfolio
+        An object containing the information for the portfolio.
+    executed_orders : set of integers
+        A set containing the indexes of all executed orders.
     
+    Returns
+    -------
+    remaining_orders : list of Order
+        A list with all remaining orders, which are not executed.
+    executed_orders : set of integers
+        An updated set with the integers of executed orders.
+    """
+  
     for order in orders_stack:
+        depedency_executed = False
+        for index in order.blocking_index:
+            if index in executed_orders:
+                depedency_executed = True
+                break
+        
+        if depedency_executed:
+            executed_orders.add(order.order_index)
+            continue
+
         executed = False
+        execution_price = 0.0
         if order.order_type == "market":
+            execution_price = current_candle['Open']
             executed = True
 
         if order.order_type == "limit":
-            if order.side == "buy" and current_price < order.price:
+            if order.side == "buy" and current_candle['Low'] < order.price:
+                execution_price = order.price
                 executed = True
-            if order.side == "sell" and current_price > order.price:
+            if order.side == "sell" and current_candle['High'] > order.price:
+                execution_price = order.price
                 executed = True
         
         if order.order_type == "stop":
-            if last_close_price < order.stop_price and current_price > order.stop_price:
+            if previous_candle['Low'] < order.stop_price and current_candle['High'] > order.stop_price:
                 executed = True
-            if last_close_price > order.stop_price and current_price < order.stop_price:
+                execution_price = order.stop_price
+            if previous_candle['High'] > order.stop_price and current_candle['Low'] < order.stop_price:
                 executed = True
+                execution_price = order.stop_price
 
-        if executed == True and order.execution_index not in executed_indexes: # quick fix as stop orders come after limit
-            #print(str(order.order_type) + " " + str(order.execution_index))
+        if executed == True: 
             if order.side == "buy":
-                portfolio.buy(ticker, current_price, order.quantity)
+                portfolio.buy(ticker, execution_price, order.quantity)
             if order.side == "sell":
-                portfolio.sell(ticker, current_price, order.quantity)
-            executed_indexes.add(order.execution_index)
+                portfolio.sell(ticker, execution_price, order.quantity)
+            executed_orders.add(order.order_index)
 
     remaining_orders = [order for order in orders_stack 
-                        if order.execution_index not in executed_indexes]
+                        if order.order_index not in executed_orders]
 
-    return remaining_orders
-    #print("Remaining " + str(len(remaining_orders)))
-
-            
-            
-
-
-def simulate(data):
-    ticker = "TSLA"
-
-    
-    orders_stack = []
-    portfolio = Portfolio()
-    previous_close = 0.0
-
-    for index, row in data.iterrows():
+    return remaining_orders, executed_orders
         
-        print("Before " + str(len(orders_stack)))
-        if previous_close != 0.0:
-            orders_stack = execute_orders(
+
+
+def simulate(full_data, ticker):
+
+    data = full_data.xs(ticker, level=1, axis=1)
+    #print("Type test " + str(data.iloc[0]['Close']))
+    orders_stack = []
+    executed_orders = set()
+    portfolio = Portfolio()
+
+    for i in range(0, len(data)):
+
+        print("Processing day " + str(i))
+        if i != 0:
+            orders_stack, executed_orders = execute_orders(
                 ticker=ticker,
-                last_close_price=previous_close, 
-                current_price=row['Open'][ticker], 
-                orders_stack=orders_stack,
-                portfolio=portfolio
+                previous_candle=data.iloc[i - 1],
+                current_candle=data.iloc[i],
+                orders_stack=orders_stack, 
+                portfolio=portfolio,
+                executed_orders=executed_orders
             )
-        print("After " + str(len(orders_stack)))
+
+        current_period = data.iloc[i]
 
         orders = handle_candle(
-            index,
-            row['Open'][ticker], 
-            row['High'][ticker], 
-            row['Low'][ticker],
-            row['Close'][ticker], 
-            row['Volume'][ticker]
+            data.index[i],
+            current_period['Open'],
+            current_period['High'],
+            current_period['Low'],
+            current_period['Close'],
+            current_period['Volume']
         )
 
-        previous_close = row['Close'][ticker]
-
         orders_stack.extend(orders)
-        
-        portfolio.update_market_prices({ticker: row['Close'][ticker]})
-        print("Portfolio value " + str(portfolio.get_portfolio_value()))
-        print("Portfolio cash " + str(portfolio.get_cash()))
+
+        portfolio.update_market_prices({ticker : current_period['Close']})
+        print("Portfolio value: " + str(portfolio.get_portfolio_value()))
         
 if __name__ == "__main__":
-    df = fetch_data()
-    simulate(df)
-
-
-"""
-figure out exact prices to use for order execution
-add slipage and commision
-add statistics line PnL
-
-
-"""
+    ticker = "NVDA"
+    df = fetch_data(ticker)
+    simulate(df, ticker)
