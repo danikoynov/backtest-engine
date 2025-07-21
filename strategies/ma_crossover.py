@@ -9,7 +9,7 @@ class History:
         self.candlesticks = candlesticks
         self.ma10 = ma10
         self.ma20 = ma20
-        self.number_executed = 0
+        self.number_indexed = 0
 
 
     def update_ma(self):
@@ -34,18 +34,23 @@ class History:
             return []
         
 
-        if self.ma10[-2] < self.ma20[-1] and self.ma10[-1] > self.ma20[-1]:
+        if self.ma10[-2] < self.ma20[-2] and self.ma10[-1] > self.ma20[-1]:
             order_setup = []
             order_setup.append(Order(side = "buy", order_type="market", quantity=1, 
-                                     execution_index=self.number_executed)) 
-            order_setup.append(Order(side = "sell", order_type="limit", quantity=1, 
-                                     price = 1.04 * self.candlesticks[-1].close_price,
-                                     execution_index=self.number_executed + 1)) # later will integrate support and resistance
+                                     order_index=self.number_indexed, 
+                                     blocking_index=[self.number_indexed])) 
             order_setup.append(Order(side = "sell", order_type="stop", quantity=1,
-                                      stop_price = 0.98 * self.candlesticks[-1].close_price, 
-                                      execution_index=self.number_executed + 1))
+                                    stop_price = 0.8 * self.candlesticks[-1].close_price, 
+                                    order_index=self.number_indexed + 2,
+                                    blocking_index=[self.number_indexed + 1, self.number_indexed + 2]))
+            order_setup.append(Order(side = "sell", order_type="limit", quantity=1, 
+                                     price = 1.2 * self.candlesticks[-1].close_price,
+                                     order_index=self.number_indexed + 1,
+                                     blocking_index=[self.number_indexed + 1, self.number_indexed + 2]))
+
             
-            self.number_executed += 2
+            
+            self.number_indexed += 3
             return order_setup
         
         return []
@@ -56,7 +61,7 @@ class History:
 history = History([], [], [])
 
 def handle_candle(timestamp, open_price, high_price, low_price, close_price, volume):
-    print("Close price " + str(type(close_price)))
+
     current_candle = Candle(timestamp, open_price, high_price, low_price, close_price, volume)
     history.candlesticks.append(current_candle)
     history.update_ma()
