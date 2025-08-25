@@ -121,6 +121,25 @@ def execute_orders(ticker, previous_candle, current_candle,
 
 
 def simulate(full_data, ticker):
+    """
+    Simulates trading process.
+
+    Each day previously placed orders are checked for execution.
+    After that based on indicators we place the new orders.
+    They will be executed from the next day.
+    
+    Parameters
+    ----------
+    full_data : pandas.DataFrame
+        Multilevel dataframe containing the OPHC candles for multiple stocks.
+    ticker : str
+        A string containing the ticker symbol for a specific stock.
+    
+    Returns
+    -------
+    portfolio : Portfolio
+        A class containing the performance history of the portfolio. 
+    """
 
     data = full_data.xs(ticker, level=1, axis=1)
     #print("Type test " + str(data.iloc[0]['Close']))
@@ -156,6 +175,8 @@ def simulate(full_data, ticker):
 
         portfolio.update_market_prices({ticker : current_period['Close']})
         print("Portfolio value: " + str(portfolio.get_portfolio_value()))
+
+    return portfolio
         
 if __name__ == "__main__":
     ticker = "NVDA"
