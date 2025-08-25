@@ -1,6 +1,6 @@
 from utils import Candle
 
-class ExponentialMovingAverageIndicator:
+class ExponentialMovingAverage:
     """
     Represents an Exponential Moving Average Indicator.
 
@@ -13,9 +13,9 @@ class ExponentialMovingAverageIndicator:
     ema_history : dict
         Contains pairs with tracked period and ema history (period -> list of ema-s)
     """
-    def __init__(self, candlesticks : list[Candle], periods : list[int]):
+    def __init__(self, periods : list[int]):
 
-        self.candlesticks = candlesticks
+        self.candlesticks = list()
         self.periods = periods
         self.ema_history = {period : [] for period in self.periods}
 
@@ -26,12 +26,15 @@ class ExponentialMovingAverageIndicator:
         Uses standard formula for the alpha:
             (alpha = 2 / (N + 1))
         where N is the period length.
-        
+
         Parameters
         ----------
         candlestick : Candle
             The latest added candlestick.
             
+        Returns
+        -------
+        None
         """
         candlestick.append(candlestick)
         for period in self.periods:
