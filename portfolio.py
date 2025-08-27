@@ -41,7 +41,7 @@ class Portfolio:
         """
         self.holdings_value = 0
         for symbol, quantity in self.positions.items():
-            self.holdings_value += price_data[symbol]
+            self.holdings_value += price_data[symbol] * quantity
         
         self.total_value = self.cash + self.holdings_value
         self.history.append(self.total_value)
@@ -98,13 +98,13 @@ class Portfolio:
         None
             
         """
-        if self.positions.get(symbol, 0) >= quantity:
-            self.positions[symbol] -= quantity
-            self.cash += price * quantity
-            if self.positions[symbol] == 0:
-                del self.positions[symbol]
-        else:
-            raise ValueError("Not enough holdings to execute sell order")
+        #if self.positions.get(symbol, 0) >= quantity:
+        self.positions[symbol] = self.positions.get(symbol, 0) - quantity
+        self.cash += price * quantity
+        if self.positions[symbol] == 0:
+            del self.positions[symbol]
+        #else
+        #    raise ValueError("Not enough holdings to execute sell order")
         
     def get_portfolio_value(self):
         """
@@ -115,6 +115,7 @@ class Portfolio:
         float
             The total portfolio value (cash + holdings).
         """
+        
         return self.total_value
     
     def get_cash(self):
