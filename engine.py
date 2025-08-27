@@ -99,10 +99,12 @@ def execute_orders(ticker, previous_candle, current_candle,
                 executed = True
         
         if order.order_type == "stop":
-            if previous_candle['Low'] < order.stop_price and current_candle['High'] > order.stop_price:
+            if (previous_candle['Low'] < order.stop_price and 
+                current_candle['High'] > order.stop_price):
                 executed = True
                 execution_price = order.stop_price
-            if previous_candle['High'] > order.stop_price and current_candle['Low'] < order.stop_price:
+            if (previous_candle['High'] > order.stop_price and 
+                current_candle['Low'] < order.stop_price):
                 executed = True
                 execution_price = order.stop_price
 
