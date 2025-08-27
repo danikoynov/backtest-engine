@@ -77,4 +77,36 @@ class Order:
         self.stop_price = stop_price
         self.order_index = order_index
         self.blocking_index = blocking_index
-    
+
+    @staticmethod
+    def get_long_position(index: int, quantity: float, 
+                          stop_loss_price: float, exit_price: float):
+        order_setup = []
+        
+        order_setup.append(Order(side="buy", order_type="market", quantity=quantity,
+                                order_index=index, blocking_index=[index]))
+        order_setup.append(Order(side="sell", order_type="stop", quantity=quantity,
+                                stop_price=stop_loss_price, order_index=index + 1,
+                                blocking_index=[index + 1, index + 2]))
+        order_setup.append(Order(side="sell", order_type="limit", quantity=quantity,
+                                price = exit_price, order_index=index + 2,
+                                blocking_index=[index + 1, index + 2]))
+        
+        return order_setup
+
+    @staticmethod
+    def get_short_position(index: int, quantity: float,
+                           stop_loss_price: float, exit_price: float):
+        order_setup = []
+
+        order_setup.append(Order(side="sell", order_type="market", quantity=quantity,
+                                 order_index=index, blocking_index=[index]))
+        order_setup.append(Order(side="buy", order_type="stop", quantity=quantity,
+                                stop_price=stop_loss_price, order_index=index + 1, 
+                                blocking_index=[index + 1, index + 2]))
+        order_setup.append(Order(side="buy", order_type="limit", quantity=quantity,
+                                price=exit_price, order_index=index + 1,
+                                blocking_index=[index + 1, index + 2]))
+
+        return order_setup    
+
