@@ -1,6 +1,6 @@
 import pandas as pd
 from datetime import datetime
-from orders import Order
+from strategies.indicators.utils import Order
 from indicators.utils import Candle
 
     

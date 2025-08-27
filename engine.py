@@ -33,7 +33,7 @@ def save_data(df, filename):
     print("Data is saved at " + file_path)
 
 from strategies.ma_crossover import handle_candle
-from orders import Order
+from strategies.indicators.utils import Order
 from portfolio import Portfolio
 
 def execute_orders(ticker, previous_candle, current_candle, 
