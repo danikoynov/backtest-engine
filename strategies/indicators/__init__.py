@@ -1,1 +1,1 @@
-from ema_indicator import ExponentialMovingAverageIndicator
+from .ema_indicator import ExponentialMovingAverage

@@ -1,4 +1,4 @@
-from utils import Candle
+from strategies.indicators.utils import Candle
 import pandas as pd
 import mplfinance as mpf
 from strategies import ExponentialMovingAverage

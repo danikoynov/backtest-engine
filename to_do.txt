@@ -1,0 +1,18 @@
+1. Add docstrings to all files / done
+2. Figure out which prices exactly you want to use for orders / done
+3. Figure out better method for coupling of orders / done 
+4. Clean up logic for order execution / done 
+11. Decompose strategies into indicators
+
+5. Add performance metrics like PnL into the Portfolio
+6. Add visualization of performance
+7. Make the execution more realistic (slippage, commission)
+8. Design a strategy class
+9. Support multiple strategies
+10. Run tests on a set of stocks
+
+For today:
+    1. Refacture the visualizer and add docstrings / done
+    2. Implement resistance levels and plot them
+    3. Implement a simple strategy 
+    4. Add metrics and test them

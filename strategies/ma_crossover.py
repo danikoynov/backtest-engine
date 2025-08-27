@@ -1,7 +1,7 @@
 import pandas as pd
 from datetime import datetime
 from orders import Order
-from utils import Candle
+from indicators.utils import Candle
 
     
 class History:

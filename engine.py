@@ -2,7 +2,7 @@ import yfinance as yf
 import os
 import datetime
 import pandas as pd
-
+from visualizer import Visualizer
 def fetch_data(ticker):
     """
     Fetches the historic data.
@@ -18,7 +18,7 @@ def fetch_data(ticker):
         A multicolumn dataframe containing the historical data of the asset.
     """
     end_date = datetime.datetime.today()
-    start_date = end_date - datetime.timedelta(weeks=300)
+    start_date = end_date - datetime.timedelta(weeks=52)
 
     data = yf.download(ticker, start=start_date.strftime('%Y-%m-%d'), end=end_date.strftime('%Y-%m-%d'), interval='1d')
     return data
@@ -142,7 +142,6 @@ def simulate(full_data, ticker):
     """
 
     data = full_data.xs(ticker, level=1, axis=1)
-    #print("Type test " + str(data.iloc[0]['Close']))
     orders_stack = []
     executed_orders = set()
     portfolio = Portfolio()
@@ -176,9 +175,12 @@ def simulate(full_data, ticker):
         portfolio.update_market_prices({ticker : current_period['Close']})
         print("Portfolio value: " + str(portfolio.get_portfolio_value()))
 
+    vs = Visualizer(data, ticker)
+    vs.plot()
+    
     return portfolio
         
 if __name__ == "__main__":
-    ticker = "NVDA"
+    ticker = "TSLA"
     df = fetch_data(ticker)
     simulate(df, ticker)

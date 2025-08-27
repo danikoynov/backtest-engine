@@ -36,9 +36,9 @@ class ExponentialMovingAverage:
         -------
         None
         """
-        candlestick.append(candlestick)
+        self.candlesticks.append(candlestick)
         for period in self.periods:
             alpha =  2.0 / (period + 1)
-            last_ema = self.ema_history[period] if self.ema_history[period] else 0.0
+            last_ema = self.ema_history[period][-1] if self.ema_history[period] else 0.0
             new_ema = last_ema * (1 - alpha) + candlestick.close_price * alpha
             self.ema_history[period].append(new_ema)
