@@ -34,7 +34,7 @@ def save_data(df, filename):
 
 from strategies.strategy1 import Strategy
 from strategies.indicators.utils import Order
-from portfolio import Portfolio
+from strategies.indicators.portfolio import Portfolio
 from strategies.indicators.utils import Candle
 
 def execute_orders(ticker, previous_candle, current_candle, 
@@ -174,17 +174,21 @@ def simulate(full_data, ticker):
         )
 
         strategy.update(current_candle)
-        orders_stack.extend(strategy.get_orders())
+        orders_stack.extend(strategy.get_orders(portfolio))
 
-        portfolio.update_market_prices({ticker : data.iloc[i]['Close']})
+        portfolio.update_market_prices({ticker : data.iloc[i]['Close']}, data.index[i])
         print("Portfolio value: " + str(portfolio.get_portfolio_value()))
 
-    vs = Visualizer(data, ticker)
-    vs.plot()
+    #vs = Visualizer(data, ticker)
+    #vs.plot()
     
     return portfolio
         
+def analyze(portfolio : Portfolio):
+    portfolio.get_stats()
+
 if __name__ == "__main__":
     ticker = "AAPL"
     df = fetch_data(ticker)
-    simulate(df, ticker)
+    portfolio = simulate(df, ticker)
+    analyze(portfolio)

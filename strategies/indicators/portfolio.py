@@ -1,3 +1,9 @@
+from rich import print
+import matplotlib.pyplot as plt
+from datetime import datetime
+import matplotlib.dates as mdates
+import pandas as pd
+
 class Portfolio:
     """
     Represents a trading portfolio with cash and asset holdings.
@@ -14,6 +20,10 @@ class Portfolio:
         The current market value of all held positions.
     total_value : float
         The current total value of the portfolio (cash + holdings).
+    dates : datetime
+        The dates of trading history.
+    MAX_RISK : constant float
+        The maximal percentage of cash to be used in a trade.
     """
     
     def __init__(self, initial_cash = 100000):
@@ -24,8 +34,10 @@ class Portfolio:
         self.holdings_value = 0
         self.total_value = initial_cash
         self.history = []
+        self.dates = []
+        self.MAX_RISK = 0.02
 
-    def update_market_prices(self, price_data):
+    def update_market_prices(self, price_data, timestamp : datetime):
         """
         Updates the holdings_value based on the new market prices.
         Adds current total value into the history of the portfolio.
@@ -45,6 +57,7 @@ class Portfolio:
         
         self.total_value = self.cash + self.holdings_value
         self.history.append(self.total_value)
+        self.dates.append(timestamp)
 
     def buy(self, symbol, price, quantity):
         """
@@ -141,5 +154,66 @@ class Portfolio:
         return dict(self.positions)
     
     def get_history(self):
+        """
+        Return the portfolio total value over time.
 
+        Returns
+        history : list
+            A list containing all recorded portfolio total values.
+        """
         return self.history
+    
+    def print_total_return(self):
+        """
+        Prints the the total portfolio value.
+
+        Returns
+        -------
+        """
+        total_return = self.total_value - self.inital_cash
+
+        if total_return > 0:
+            print(f"Total return: [green]{total_return}[/green]")
+        else:
+            print(f"Total return: [red]{total_return}[/red]")
+        
+        return self.total_value - self.inital_cash
+    
+    def plot_equity_curve(self):
+        """
+        Prints the equity curve.
+
+        On the x-axis are the times at which the porfolio total values is recorded.
+        On the y-axis is the ratio of total value and initial cash at each moment.
+
+        Rerturns
+        --------
+        """
+        history_normalized = [value / self.inital_cash for value in self.history]
+        equity_series = pd.Series(data=history_normalized, index=self.dates)
+
+        plt.figure(figsize=(10, 5), dpi=120)
+        plt.plot(equity_series, marker="o", linewidth=1, markersize = 2, color="lightgreen")
+
+        plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))  # Format as YYYY-MM-DD
+
+        plt.title("Portfolio Value Over Time")
+        plt.xlabel("Date")
+        plt.ylabel("Ratio of Value / Initial Cash")
+
+        plt.show()
+
+    def get_stats(self):
+        """
+        Gives statistics about the portfolio.
+        """
+        self.print_total_return()
+        self.plot_equity_curve()
+
+
+        
+
+
+
+
+        

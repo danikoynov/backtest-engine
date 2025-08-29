@@ -2,6 +2,8 @@ from .indicators.utils import Candle
 from .indicators.ema_indicator import ExponentialMovingAverage
 from .indicators.rsi_indicator import RelativeStrengthIndex
 from .indicators.utils import Order
+from .indicators.portfolio import Portfolio
+
 class Strategy:
     """
     This strategy will look to follow a trend. 
@@ -50,7 +52,7 @@ class Strategy:
         self.ema_indicator.update(candlestick)
         self.rsi_indicator.update(candlestick)
 
-    def get_orders(self):
+    def get_orders(self, portfolio : Portfolio):
         """
         A function which returns orders based on indicator signals.
 
@@ -59,7 +61,8 @@ class Strategy:
 
         Parameters
         ----------
-        None
+        portfolio : Porfolio
+            A portfolio tracking the performance and active assets.
 
         Returns
         -------
@@ -72,15 +75,17 @@ class Strategy:
         current_price = self.candlesticks[-1].close_price
         order_setup = []
         
+        max_value = portfolio.MAX_RISK * portfolio.cash
+
         if (self.ema_indicator.ema_history[self.EMA_PERIOD][-1] < current_price and
             self.rsi_indicator.rsi_history[self.RSI_PERIOD][-1] < 70):
-            order_setup = Order.get_long_position(self.number_of_orders, quantity=1,
+            order_setup = Order.get_long_position(self.number_of_orders, quantity=max_value / self.candlesticks[-1].close_price,
                                                   stop_loss_price=0.9*current_price, exit_price=1.1*current_price)
             print("Enter long")
             
         elif (self.ema_indicator.ema_history[self.EMA_PERIOD][-1] > current_price and
               self.rsi_indicator.rsi_history[self.RSI_PERIOD][-1] > 30):
-            order_setup = Order.get_short_position(self.number_of_orders, quantity=1,
+            order_setup = Order.get_short_position(self.number_of_orders, quantity=max_value / self.candlesticks[-1].close_price,
                                                    stop_loss_price=1.1*current_price, exit_price=0.9*current_price)
             print("Enter short")
             
