@@ -173,12 +173,32 @@ class Portfolio:
         total_return = self.total_value - self.inital_cash
 
         if total_return > 0:
-            print(f"Total return: [green]{total_return}[/green]")
+            print(f"Total return: [green]{round(total_return, 2)}€[/green]")
         else:
-            print(f"Total return: [red]{total_return}[/red]")
+            print(f"Total return: [red]{round(total_return, 2)}€[/red]")
         
         return self.total_value - self.inital_cash
     
+    def print_initial_cash(self):
+        print(f"Initial cash: [white]{round(self.inital_cash, 2)}€[/white]")
+
+    def print_cagr(self):
+        """
+        Print the compound annual grow rate (CAGR).
+
+        Returns
+        -------
+        None
+        """
+        number_of_days = (self.dates[-1] - self.dates[0]).days + 1
+        number_of_years = number_of_days / 365.25
+        cagr = ((self.total_value / self.inital_cash) ** (1.0 / number_of_years) - 1) * 100
+
+        if cagr > 0:
+            print(f"CAGR: [green]{round(cagr, 2)}%[/green]")
+        else:
+            print(f"CAGR: [red]{round(cagr, 2)}%[/red]")
+
     def plot_equity_curve(self):
         """
         Prints the equity curve.
@@ -207,7 +227,9 @@ class Portfolio:
         """
         Gives statistics about the portfolio.
         """
+        self.print_initial_cash()
         self.print_total_return()
+        self.print_cagr()
         self.plot_equity_curve()
 
 

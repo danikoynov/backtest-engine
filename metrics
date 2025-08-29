@@ -1,8 +1,8 @@
 Calculations
 
-1. Total Return
-2. CAGR (non-priority)
-3. Volatility
+1. Total Return / done
+2. CAGR (non-priority) / done
+3. Volatility 
 4. Sharpe Ratio
 5. Sortino Ratio (non-priority)
 6. Max drawdown
@@ -14,7 +14,7 @@ Calculations
 
 Visualization
 
-1. Equity curve
+1. Equity curve / done
 2. Drawdown chart (non-priority)
 3. Distribution of returns (non-priority)
 4. Rolling Sharpe ratio (non-priority)
