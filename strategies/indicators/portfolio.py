@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import matplotlib.dates as mdates
 import pandas as pd
+import statistics
+import math
 
 class Portfolio:
     """
@@ -223,6 +225,25 @@ class Portfolio:
 
         plt.show()
 
+    def print_std(self):
+        """
+        Prints the annualized standard deviation of the portfolio.
+
+        Returns
+        -------
+        None
+        """
+
+        returns = []
+        for i in range(1, len(self.history)):
+            returns.append(self.history[i] / self.history[i - 1] - 1.0)
+
+        std_daily = statistics.stdev(returns)
+
+        std_yearly_percentage = (std_daily * math.sqrt(252)) * 100
+
+        print(f"Standard Deviation Yearly: [white]{round(std_yearly_percentage, 2)}%c[/white]")
+
     def get_stats(self):
         """
         Gives statistics about the portfolio.
@@ -230,6 +251,7 @@ class Portfolio:
         self.print_initial_cash()
         self.print_total_return()
         self.print_cagr()
+        self.print_std()
         self.plot_equity_curve()
 
 
