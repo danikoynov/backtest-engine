@@ -1,4 +1,4 @@
-from utils import Candle
+from .utils import Candle
 
 class RelativeStrengthIndex:
     """
@@ -40,7 +40,7 @@ class RelativeStrengthIndex:
         -------
         None
         """
-        
+
         self.candlesticks.append(candlestick)
         for period in self.periods:
             if len(self.candlesticks) > period:
@@ -61,5 +61,7 @@ class RelativeStrengthIndex:
                 else:
                     rsi = 100 - 100 / (1 + gains / losses)
 
-                self.rsi_history[period].append(rsi)                
+                self.rsi_history[period].append(rsi)
+            else:
+                self.rsi_history[period].append(50)                
 

@@ -32,9 +32,10 @@ def save_data(df, filename):
     df.to_csv(file_path)
     print("Data is saved at " + file_path)
 
-from strategies.ma_crossover import handle_candle
+from strategies.strategy1 import Strategy
 from strategies.indicators.utils import Order
 from portfolio import Portfolio
+from strategies.indicators.utils import Candle
 
 def execute_orders(ticker, previous_candle, current_candle, 
                    orders_stack: list[Order], portfolio: Portfolio, executed_orders: set[int]):
@@ -147,6 +148,7 @@ def simulate(full_data, ticker):
     orders_stack = []
     executed_orders = set()
     portfolio = Portfolio()
+    strategy = Strategy()
 
     for i in range(0, len(data)):
 
@@ -161,20 +163,20 @@ def simulate(full_data, ticker):
                 executed_orders=executed_orders
             )
 
-        current_period = data.iloc[i]
 
-        orders = handle_candle(
-            data.index[i],
-            current_period['Open'],
-            current_period['High'],
-            current_period['Low'],
-            current_period['Close'],
-            current_period['Volume']
+        current_candle = Candle(
+            timestamp=data.index[i],
+            open_price=data.iloc[i]['Open'],
+            high_price=data.iloc[i]['High'],
+            low_price=data.iloc[i]['Low'],
+            close_price=data.iloc[i]['Close'],
+            volume=data.iloc[i]['Volume']
         )
 
-        orders_stack.extend(orders)
+        strategy.update(current_candle)
+        orders_stack.extend(strategy.get_orders())
 
-        portfolio.update_market_prices({ticker : current_period['Close']})
+        portfolio.update_market_prices({ticker : data.iloc[i]['Close']})
         print("Portfolio value: " + str(portfolio.get_portfolio_value()))
 
     vs = Visualizer(data, ticker)
@@ -183,6 +185,6 @@ def simulate(full_data, ticker):
     return portfolio
         
 if __name__ == "__main__":
-    ticker = "TSLA"
+    ticker = "AAPL"
     df = fetch_data(ticker)
     simulate(df, ticker)

@@ -14,5 +14,5 @@
 For today:
     1. Refacture the visualizer and add docstrings / done
     2. Implement resistance levels and plot them
-    3. Implement a simple strategy 
+    3. Implement a simple strategy / done / could also add a volume indicator
     4. Add metrics and test them

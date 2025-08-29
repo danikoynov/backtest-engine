@@ -1,4 +1,4 @@
-from utils import Candle
+from .utils import Candle
 
 class ExponentialMovingAverage:
     """

@@ -1,0 +1,16 @@
+Price action based
+
+1. Price action EMA / done
+2. MACD Histogram
+3. The directional system
+4. Stochastic oscillator
+5. Relative Strength Index / done 
+
+Volume based 
+
+1. On Balance Volume
+2. A/D indicator
+3. Force Index 
+    // Might be good to combine with EMA and RSI    
+    // It has a short term EMA 2 day version which pinpoints entries
+    // It also has a long term EMA 13 day version which shows trends.

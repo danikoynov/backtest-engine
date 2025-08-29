@@ -1,0 +1,22 @@
+Calculations
+
+1. Total Return
+2. CAGR (non-priority)
+3. Volatility
+4. Sharpe Ratio
+5. Sortino Ratio (non-priority)
+6. Max drawdown
+7. Calmar Ratio (non-priority)
+8. Win rate
+9. Profit Factor
+10. Average trade return (non-priority)
+11. Expectancy per trade (non-priority)
+
+Visualization
+
+1. Equity curve
+2. Drawdown chart (non-priority)
+3. Distribution of returns (non-priority)
+4. Rolling Sharpe ratio (non-priority)
+5. Cumultative returns vs benchmark
+6. Trade PnL Distribution diagram
