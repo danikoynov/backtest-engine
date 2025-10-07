@@ -110,3 +110,27 @@ class Order:
 
         return order_setup    
 
+def newton_raphson(steps: int, function, derivative, initial_guess : float):
+    """
+    A function implementing the Newton-Raphson method for finding roots.
+
+    If the function follows certain conditions then using:
+        x_n = x_(n-1) - f(x_(n-1)) / df/dx(x_(n-1))
+    x_n will converge to the actual root.
+
+    Parameters:
+    steps : int
+        How many guesses the method should make.
+    function : object
+        The function we are considering.
+    derivative : object
+        The derivative of the function we are considering.
+    initial_guess : float
+        Initial guess of the root.
+    """
+    
+    while(steps > 0):
+        new_guess = initial_guess - function(initial_guess) / derivative(initial_guess)
+        initial_guess = new_guess
+        steps -= 1
+    return initial_guess
